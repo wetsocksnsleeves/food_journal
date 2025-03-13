@@ -7,15 +7,12 @@ import { useRouter } from "next/navigation";
 import { auth } from "@/firebase";
 
 export default function Home() {
-
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
     useEffect(() => {
-
         const unsubscribe = onAuthStateChanged(auth, (authUser) => {
-
             setUser(authUser);
             setLoading(false);
             if (!authUser) {
@@ -27,7 +24,11 @@ export default function Home() {
     }, [router]); // Added router to dependency array
 
     if (loading) {
-        return <div className="flex justify-center items-center h-screen">Loading...</div>; // Loading indicator
+        return (
+            <div className="flex justify-center items-center h-screen">
+                Loading...
+            </div>
+        ); // Loading indicator
     }
 
     if (!user) {
@@ -35,9 +36,11 @@ export default function Home() {
     }
 
     return (
-        <div className="outline py-8 flex flex-col items-center gap-2">
+        <div className="py-6 mx-4 flex flex-col items-center gap-2">
             <span className="text-3xl">Welcome Back, {user.displayName}</span>
-            <span className="text-xl italic">Lets track your diet today.</span>
+            <span className="text-xl italic mb-8">Lets track your diet today.</span>
+            <div className="outline bg-foreground flex justify-center w-full h-50">
+            </div>
         </div>
     );
 }

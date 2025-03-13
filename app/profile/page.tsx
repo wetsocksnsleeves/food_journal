@@ -22,8 +22,8 @@ export default function Profile() {
 
     if (user) {
         return (
-            <div className="mt-5 flex flex-col">
-                <div className="flex flex-col">
+            <div className="mt-5 flex flex-col justify-center">
+                <div className="flex flex-col justify-center">
                     <div className="p-8 flex flex-col justify-center items-center">
                         <span className="rounded-full bg-gray-200 overflow-hidden w-fit h-fit m-3">
                             <Image

@@ -15,10 +15,10 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={`antialiased overflow-x-hidden`}>
-                <div>
+                <div className="flex justify-center items-center ">
                     <NavBar />
-                    {children}
                 </div>
+                <div>{children}</div>
             </body>
         </html>
     );
