@@ -10,6 +10,8 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-accent-one : #2d2e32;
+  --color-accent-two : #488ffb;
+  --color-primary: #FFFFFF;
 }
 
 /* @media (prefers-color-scheme: dark) { */
@@ -23,4 +25,5 @@ body {
   background: var(--background);
   color: #000000;
   font-family: Inter, sans-serif;
+  max-width: 390px;
 }

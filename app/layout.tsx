@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`antialiased overflow-x-hidden`}>
+            <body className={`antialiased overflow-x-hidden mx-auto select-none`}>
                 <div className="flex justify-center items-center ">
                     <NavBar />
                 </div>

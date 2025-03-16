@@ -18,7 +18,7 @@ export default function SignOut() {
 
     return (
         <form action={handleSignOut}>
-            <button className="p-5 bg-white text-black rounded-lg" type="submit">
+            <button className="p-5 bg-none text-black" type="submit">
                 Sign Out
             </button>
         </form>

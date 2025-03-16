@@ -33,18 +33,57 @@ export default function Profile() {
                                 height={100}
                             />
                         </span>
-                        <h1 className="text-2xl">{user.displayName}</h1>
+                        <div className="flex flex-col justify-center items-center">
+                            <h1 className="text-2xl">{user.displayName}</h1>
+                            <label className="text-sm text-accent-two cursor-pointer active:brightness-150">Edit</label>
+                        </div>
                     </div>
-                    <div className="m-5 flex justify-center">
+                    <div className="mx-5">
+                        <h1 className="text-lg font-bold mb-1">
+                            Goal (Calories)
+                        </h1>
+                        <p>
+                            Head to{" "}
+                            <a
+                                href="https://www.calculator.net/calorie-calculator.html"
+                                target="_blank"
+                                className="text-accent-two underline"
+                            >
+                                this website
+                            </a>{" "}
+                            to calculate your calorie needs. Come back and enter
+                            your value.
+                        </p>
+                        <div className="flex gap-2 justify-between mt-2">
+                            <input
+                                type="text"
+                                name="Food"
+                                placeholder="e.g. 2000"
+                                className="rounded-sm p-1 bg-white w-full"
+                            />
+                            <button className="px-4 bg-accent-one text-white rounded-sm active:brightness-150">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                    <div className="bg-foreground rounded-xl mt-10 m-5 flex justify-center drop-shadow-sm active:brightness-75">
                         <SignOut />
+                    </div>
+                    <div className="text-center">
+                        Made with 🔥 by{" "}
+                        <a href="https://www.linkedin.com/in/etao12">Etao</a>
                     </div>
                 </div>
             </div>
         );
     } else {
         return (
-            <div className="flex gap-3 justify-center">
+            <div className="m-5 rounded-xl bg-accent-one text-white flex gap-3 drop-shadow-md justify-center active:brightness-150">
                 <SignIn />
+                <div className="text-center">
+                    Made with 🔥 by{" "}
+                    <a href="https://www.linkedin.com/in/etao12">Etao</a>
+                </div>
             </div>
         );
     }
