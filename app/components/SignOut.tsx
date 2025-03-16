@@ -17,10 +17,8 @@ export default function SignOut() {
     };
 
     return (
-        <form action={handleSignOut}>
-            <button className="p-5 bg-none text-black" type="submit">
-                Sign Out
-            </button>
-        </form>
+        <div className="p-5 bg-foreground m-5 rounded-lg flex justify-center active:brightness-150 drop-shadow-md" onClick={handleSignOut}>
+            Sign Out
+        </div>
     );
 }

@@ -35,7 +35,9 @@ export default function Profile() {
                         </span>
                         <div className="flex flex-col justify-center items-center">
                             <h1 className="text-2xl">{user.displayName}</h1>
-                            <label className="text-sm text-accent-two cursor-pointer active:brightness-150">Edit</label>
+                            <label className="text-sm text-accent-two cursor-pointer active:brightness-150">
+                                Edit
+                            </label>
                         </div>
                     </div>
                     <div className="mx-5">
@@ -66,8 +68,8 @@ export default function Profile() {
                             </button>
                         </div>
                     </div>
-                    <div className="bg-foreground rounded-xl mt-10 m-5 flex justify-center drop-shadow-sm active:brightness-75">
-                        <SignOut />
+                    <div className="mt-5">
+                    <SignOut />
                     </div>
                     <div className="text-center">
                         Made with 🔥 by{" "}
@@ -78,7 +80,7 @@ export default function Profile() {
         );
     } else {
         return (
-            <div className="m-5 rounded-xl bg-accent-one text-white flex gap-3 drop-shadow-md justify-center active:brightness-150">
+            <div>
                 <SignIn />
                 <div className="text-center">
                     Made with 🔥 by{" "}

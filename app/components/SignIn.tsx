@@ -17,10 +17,8 @@ export default function GoogleSignInButton() {
     };
 
     return (
-        <form action={handleGoogleSignIn}>
-            <button className="p-5 bg-none" type="submit">
+        <div className="bg-accent-one m-5 p-5 rounded-lg flex justify-center active:brightness-150 drop-shadow-md text-white" onClick={handleGoogleSignIn}>
                 Sign In
-            </button>
-        </form>
+        </div>
     );
 }
