@@ -49,7 +49,9 @@ export default function Home() {
     }
 
     async function handleAddNew() {
+        // @ts-ignore
         const foodValue = document.getElementById("Food").value;
+        // @ts-ignore
         const calorieValue = document.getElementById("Calories").value;
 
         setAddNew(false);
@@ -57,6 +59,7 @@ export default function Home() {
         // Send the info to the datebase
         if (foodValue !== "" && calorieValue != "") {
             const newEntry: Item = { name: foodValue, calories: calorieValue };
+        // @ts-ignore
             const dateDocRef = doc(db, "users", user.uid, "dates", todaysDate);
 
             await updateDoc(dateDocRef, {
@@ -92,6 +95,7 @@ export default function Home() {
                 const dateDocRef = doc(
                     db,
                     "users",
+        // @ts-ignore
                     user.uid,
                     "dates",
                     todaysDate,
@@ -110,6 +114,7 @@ export default function Home() {
 
     useEffect(() => {
         const unsubscribeUser = onAuthStateChanged(auth, async (authUser) => {
+        // @ts-ignore
             setUser(authUser);
 
             if (!authUser) {
@@ -228,6 +233,7 @@ export default function Home() {
                     </div>
                     <HoldDetector
                         onHold={handleHold}
+        // @ts-ignore
                         onClick={(event) => event.stopPropagation()}
                         className="w-full"
                     >

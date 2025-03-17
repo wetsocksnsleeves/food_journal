@@ -30,6 +30,7 @@ export default function Profile() {
         if (editUsername) {
             // Update the username
             setEditUsername(false);
+        // @ts-ignore
             const newUsername = document.getElementById("Username").value;
 
             if (newUsername) {
@@ -40,6 +41,7 @@ export default function Profile() {
                     closeOnClick: false,
                     pauseOnHover: false,
                 });
+        // @ts-ignore
                 const userDocRef = doc(db, "users", user.uid);
                 await updateDoc(userDocRef, {
                     username: newUsername,
@@ -51,7 +53,9 @@ export default function Profile() {
     }
 
     async function handleUserGoalEdit() {
+        // @ts-ignore
         const newUserGoal = document.getElementById("Goal").value;
+        // @ts-ignore
         document.getElementById("Goal").value = "";
         toast.success(`Your goal has been updated!`, {
             position: "top-center",
@@ -62,6 +66,7 @@ export default function Profile() {
         });
 
         if (newUserGoal) {
+        // @ts-ignore
             const userDocRef = doc(db, "users", user.uid);
             await updateDoc(userDocRef, {
                 goal: newUserGoal,
@@ -71,6 +76,7 @@ export default function Profile() {
 
     async function handleUserTheme(theme: number) {
         // Write to firestore
+        // @ts-ignore
         const userDocRef = doc(db, "users", user.uid);
         await updateDoc(userDocRef, {
             theme: theme,
@@ -79,6 +85,7 @@ export default function Profile() {
 
     useEffect(() => {
         const unsubscribeUser = onAuthStateChanged(auth, async (authUser) => {
+        // @ts-ignore
             setUser(authUser);
             if (authUser) {
                 try {
@@ -158,6 +165,7 @@ export default function Profile() {
                     <div className="p-8 flex flex-col justify-center items-center">
                         <span className="rounded-full bg-gray-200 overflow-hidden w-fit h-fit m-3">
                             <Image
+                                // @ts-ignore
                                 src={user.photoURL}
                                 alt={`User profile picture`}
                                 width={100}
