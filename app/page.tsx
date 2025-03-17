@@ -2,11 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-
 import { useRouter } from "next/navigation";
-import { auth } from "@/firebase";
-import Image from "next/image";
-import AddEntry from "./components/AddEntry";
+import { auth, db } from "@/firebase";
+import {
+    query,
+    where,
+    addDoc,
+    collection,
+    getDocs,
+    doc,
+    onSnapshot,
+    getDoc,
+    updateDoc,
+    setDoc,
+    arrayUnion,
+} from "firebase/firestore";
 
 interface Item {
     name: string;
@@ -18,28 +28,116 @@ export default function Home() {
     const [loading, setLoading] = useState(true);
     const [addNew, setAddNew] = useState(false);
     const router = useRouter();
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    const [todaysDate, setTodaysDate] = useState(`${year}-${month}-${day}`);
+
+    // Firestore
+    const [data, setData] = useState([]);
+    const [username, setUsername] = useState("");
+    const [userGoal, setUserGoal] = useState(0);
+    const userResult = sumCalories(data);
 
     function sumCalories(data: Item[]) {
         let sum = 0;
         for (const item of data) {
-            sum += item.calories;
+            sum += Number(item.calories);
         }
         return sum;
     }
 
-    function handleAddNew(){
+    async function handleAddNew() {
+        const foodValue = document.getElementById("Food").value;
+        const calorieValue = document.getElementById("Calories").value;
+
         setAddNew(false);
+
+        // Send the info to the datebase
+        if (foodValue !== "" && calorieValue != "") {
+            const newEntry: Item = { name: foodValue, calories: calorieValue };
+            const dateDocRef = doc(db, "users", user.uid, "dates", todaysDate);
+
+            await updateDoc(dateDocRef, {
+                data: arrayUnion(newEntry),
+            });
+        }
     }
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (authUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
             setUser(authUser);
-            setLoading(false);
+
             if (!authUser) {
                 router.push("/profile");
+            } else if (authUser) {
+                try {
+                    console.log("Fetching user information");
+
+                    const userDocRef = doc(db, "users", authUser.uid); // Create docRef with uid as ID
+                    const docSnapshot = await getDoc(userDocRef);
+
+                    if (docSnapshot.exists()) {
+                        setUsername(docSnapshot.data().username);
+                        setUserGoal(docSnapshot.data().goal);
+                    }
+
+                    const dailyNotesDoc = doc(
+                        db,
+                        "users",
+                        authUser.uid,
+                        "dates",
+                        todaysDate,
+                    );
+
+                    const dailyNotesSnapshot = await getDoc(dailyNotesDoc);
+
+                    if (dailyNotesSnapshot.exists()) {
+                        console.log(
+                            "Attaching listener to today's data. Fetching...",
+                        );
+                        const unsubscribe = onSnapshot(
+                            dailyNotesDoc,
+                            (docSnapshot) => {
+                                if (docSnapshot.exists()) {
+                                    setData(docSnapshot.data().data);
+                                } else {
+                                    console.log("User document not found.");
+                                }
+                            },
+
+                            (error) => {
+                                console.error(
+                                    "Error listening to username: ",
+                                    error,
+                                );
+                            },
+                        );
+                    } else {
+                        console.log(
+                            "No daily note found for today. Creating one...",
+                        );
+                        try {
+                            await setDoc(dailyNotesDoc, { data: [] }); // Create the document with an empty data array
+                            console.log("New date document created.");
+                            setData([]); // Set data to empty array in state
+                        } catch (error) {
+                            console.error(
+                                "Error creating date document: ",
+                                error,
+                            );
+                            setData([]); // Still set data to empty array in state, but log error
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error handling user document: ", error);
+                }
             }
+            setLoading(false);
         });
 
+        // Close the snapshot listener
         return () => unsubscribe();
     }, [router]); // Added router to dependency array
 
@@ -55,49 +153,27 @@ export default function Home() {
         return null; // or a loading state. This will prevent a react error.
     }
 
-    const mockData = [
-        { name: "Chicken wings", calories: 100 },
-        { name: "Meatballs", calories: 80 },
-        { name: "Coke", calories: 100 },
-        { name: "Meth", calories: 10 },
-        { name: "Cheese burger", calories: 150 },
-        { name: "Pussy", calories: 5 },
-        { name: "Her titty milk", calories: 50 },
-        { name: "Pussy", calories: 5 },
-        { name: "Her titty milk", calories: 50 },
-        { name: "Pussy", calories: 5 },
-        { name: "Her titty milk", calories: 50 },
-        { name: "Pussy", calories: 5 },
-        { name: "Her titty milk", calories: 50 },
-        { name: "Pussy", calories: 5 },
-        { name: "Her titty milk", calories: 50 },
-        { name: "Pussy", calories: 5 },
-        { name: "Her titty milk", calories: 50 },
-        { name: "Steak", calories: 271 },
-    ];
-
-    const mockResult = sumCalories(mockData);
-    const mockGoal = 1000;
-
     return (
         <div className="py-6 mx-4 flex flex-col items-center gap-2">
-            <span className="text-3xl">Welcome Back, {user.displayName}</span>
-            <span className="text-xl italic mb-8">
-                Lets track your diet today.
-            </span>
+            <div className="flex flex-col justify-center items-center text-center mb-8">
+                <span className="text-3xl mb-2">Welcome Back, {username}</span>
+                <span className="text-lg italic">
+                    Lets track your diet today.
+                </span>
+            </div>
             <div className="pt-[23px] pb-[23px] w-full relative">
-                <div className="text-gray-700 flex flex-col justify-start items-center px-3 py-1 bg-white w-full min-h-50 break-all">
+                <div className="text-text flex flex-col justify-start items-center px-3 py-8 bg-white w-full min-h-50 break-all">
                     <div className="px-3 w-full flex justify-between">
                         <span className="w-1/4 text-2xl active:scale-150 transition-all">{`<`}</span>
-                        <h1 className="text-xl font-bold">31/12/2003</h1>
+                        <h1 className="text-xl font-bold">{todaysDate}</h1>
                         <span className="text-right w-1/4 text-2xl active:scale-150 transition-all">{`>`}</span>
                     </div>
-                    <p>---------------------------------------------</p>
+                    <hr className="m-2 w-[98%] border-1 border-text border-dashed"/>
                     <div className="mb-2 px-2 w-full flex justify-between font-bold">
                         <h1>ITEMS</h1>
                         <h1>CALORIES</h1>
                     </div>
-                    {mockData.map((item: Item, index) => {
+                    {data.map((item: Item, index) => {
                         return (
                             <div
                                 key={index}
@@ -110,42 +186,48 @@ export default function Home() {
                     })}
                     {addNew ? (
                         <div>
-                            <div className="mt-2 px-2 py-1 w-full rounded-lg flex justify-center font-bold gap-2">
+                            <div className="mt-2 px-2 py-1 w-full rounded-lg flex justify-center gap-2">
                                 <input
                                     type="text"
-                                    name="Food"
+                                    id="Food"
                                     placeholder="e.g. Steak"
                                     className="rounded-sm outline p-1 bg-white flex-grow-1"
                                 />
                                 <input
-                                    type="text"
-                                    name="Calories"
+                                    type="number"
+                                    id="Calories"
                                     placeholder="e.g. 270"
-                                    className="rounded-sm outline p-1 bg-white w-full"
+                                    className="rounded-sm outline p-1 bg-white w-full text-right"
                                 />
                             </div>
-                            <div className="mt-2 px-2 py-1 w-full rounded-lg flex justify-center font-bold" onClick={handleAddNew}>
-                               Confirm 
+                            <div
+                                className="mt-2 px-2 py-1 w-full rounded-lg flex justify-center font-bold"
+                                onClick={handleAddNew}
+                            >
+                                Confirm
                             </div>
                         </div>
                     ) : (
-                        <div className="mt-2 px-2 py-1 w-full rounded-lg flex justify-center font-bold" onClick={() => setAddNew(true)}>
+                        <div
+                            className="mt-2 px-2 py-1 w-full rounded-lg flex justify-center font-bold"
+                            onClick={() => setAddNew(true)}
+                        >
                             Add new
                         </div>
                     )}
-                    <p>---------------------------------------------</p>
+                    <hr className="m-2 w-[98%] border-1 border-text border-dashed"/>
                     <div className="px-2 w-full flex justify-between">
                         <h1 className="font-bold">GOAL</h1>
-                        <h1 className="">{mockGoal}</h1>
+                        <h1 className="">{`≤ ${userGoal}`}</h1>
                     </div>
                     <div className="px-2 w-full flex justify-between">
                         <h1 className="font-bold">TOTAL</h1>
-                        <h1 className="">{mockResult}</h1>
+                        <h1 className="">{userResult}</h1>
                     </div>
-                    <p>---------------------------------------------</p>
+                    <hr className="m-2 w-[98%] border-1 border-text border-dashed"/>
                     <div className="px-2 w-full flex justify-between">
-                        <h1 className="font-bold">RESULT</h1>
-                        <h1 className="">{mockGoal - mockResult}</h1>
+                        <h1 className="font-bold">REMAINING</h1>
+                        <h1 className="">{userGoal - userResult}</h1>
                     </div>
                     <div className="mt-4 px-2 py-3 w-full">
                         <img
@@ -155,16 +237,8 @@ export default function Home() {
                         />
                     </div>
                 </div>
-                <img
-                    src="/serrated-edge.svg"
-                    alt="top edge"
-                    className="absolute left-0 top-0 "
-                />
-                <img
-                    src="/serrated-edge.svg"
-                    alt="bottom edge"
-                    className="absolute left-0 bottom-0 scale-y-[-1]"
-                />
+                <div className="absolute left-0 top-0 w-full h-[23px] bg-[url('/serrated-edge.svg')] bg-repeat-x bg-cover"></div>
+                <div className="absolute left-0 bottom-[1px] w-full h-[23px] bg-[url('/serrated-edge.svg')] bg-repeat-x bg-cover transform scale-y-[-1]"></div>
             </div>
         </div>
     );
