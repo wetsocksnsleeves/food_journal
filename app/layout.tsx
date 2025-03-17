@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import NavBar from "./components/NavBar";
 import { ToastContainer } from "react-toastify";
-import { useState } from "react";
+import { ThemeProvider, useTheme } from "./context/ThemeProvider";
+import Themer from "./components/Themer";
 
 export const metadata: Metadata = {
     title: "Food Journal",
@@ -15,14 +16,14 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
-            <body className={`antialiased overflow-x-hidden mx-auto select-none`}>
+        <ThemeProvider>
+            <Themer>
                 <div className="flex justify-center items-center ">
                     <NavBar />
                 </div>
                 <div>{children}</div>
-                <ToastContainer/>
-            </body>
-        </html>
+                <ToastContainer />
+            </Themer>
+        </ThemeProvider>
     );
 }

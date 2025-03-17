@@ -20,6 +20,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/firebase";
 import { toast } from "react-toastify";
+import { useTheme } from "../context/ThemeProvider";
 
 export default function Profile() {
     const [user, setUser] = useState(null);
@@ -29,7 +30,12 @@ export default function Profile() {
     const [username, setUsername] = useState("");
     const [editUsername, setEditUsername] = useState(false);
     const [userGoal, setUserGoal] = useState("");
-    const [theme, setTheme] = useState(0);
+    const { theme, setTheme } = useTheme();
+    const themes = [
+        { name: "Default", code: 0 },
+        { name: "Dark", code: 1 },
+        { name: "Pink", code: 2 },
+    ];
 
     async function handleUserNameEdit() {
         if (editUsername) {
@@ -169,7 +175,7 @@ export default function Profile() {
                                         type="text"
                                         id="Username"
                                         placeholder={username}
-                                        className="rounded-sm p-1 bg-white w-full mb-2 text-center"
+                                        className="rounded-sm p-1 bg-white w-full mb-2 text-center placeholder-gray-700 text-black"
                                     />
                                     <label
                                         onClick={handleUserNameEdit}
@@ -207,12 +213,12 @@ export default function Profile() {
                             to calculate your calorie needs. Come back and enter
                             your value.
                         </p>
-                        <div className="flex gap-2 justify-between mt-2">
+                        <div className="flex gap-2 justify-between mt-2 mb-8">
                             <input
                                 type="text"
                                 id="Goal"
                                 placeholder={userGoal}
-                                className="rounded-sm p-1 bg-white w-full"
+                                className="rounded-sm p-1 bg-white w-full placeholder-gray-700 text-black"
                             />
                             <button
                                 className="px-4 bg-accent-one text-white rounded-sm active:brightness-150"
@@ -222,28 +228,23 @@ export default function Profile() {
                             </button>
                         </div>
                     </div>
-                    <div className="p-3 pt-5 rounded-2xl bg-foreground m-5 flex gap-3 justify-evenly">
-                        <div className="flex flex-col justify-center items-center gap-2">
+                    <div className="p-3 pt-5 rounded-2xl bg-foreground mt-8 m-5 flex gap-3 justify-evenly">
+                        {themes.map((_theme, index) => (
                             <div
-                                className={`w-20 h-20 rounded-full bg-white ${theme === 0 ? "outline-2 outline-accent-two outline-offset-3" : ""}`}
-                                onClick={() => handleUserTheme(0)}
-                            ></div>
-                            <p>Default</p>
-                        </div>
-                        <div className="flex flex-col justify-center items-center gap-2">
-                            <div
-                                className={`w-20 h-20 rounded-full bg-gray-900 ${theme === 1 ? "outline-2 outline-accent-two outline-offset-3" : ""}`}
-                                onClick={() => handleUserTheme(1)}
-                            ></div>
-                            <p>Dark</p>
-                        </div>
-                        <div className="flex flex-col justify-center items-center gap-2">
-                            <div
-                                className={`w-20 h-20 rounded-full bg-pink-300 ${theme === 2 ? "outline-2 outline-offset-3 outline-accent-two" : ""}`}
-                                onClick={() => handleUserTheme(2)}
-                            ></div>
-                            <p>Pink</p>
-                        </div>
+                                key={index}
+                                className="flex flex-col justify-center items-center gap-2"
+                            >
+                                <div
+                                    className={`w-13 h-13 rounded-full ${theme === _theme.code ? "outline-2 outline-accent-two outline-offset-3" : ""}
+                                        ${_theme.code === 0 ? "bg-white" : ""}
+                                        ${_theme.code === 1 ? "bg-gray-900" : ""}
+                                        ${_theme.code === 2 ? "bg-pink-300" : ""}
+                                        `}
+                                    onClick={() => handleUserTheme(_theme.code)}
+                                ></div>
+                                <p>{_theme.name}</p>
+                            </div>
+                        ))}
                     </div>
                     <div className="mt-3">
                         <SignOut />

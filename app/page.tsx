@@ -214,7 +214,7 @@ export default function Home() {
                 </span>
             </div>
             <div className="pt-[23px] pb-[23px] w-full relative">
-                <div className="text-text flex flex-col justify-start items-center px-3 py-8 bg-white w-full min-h-50 break-all">
+                <div className="text-[#364153] flex flex-col justify-start items-center px-3 py-8 bg-white w-full min-h-50 break-all">
                     <div className="px-3 w-full flex justify-between">
                         <span className="w-1/4 text-2xl active:scale-150 transition-all">{`<`}</span>
                         <h1 className="text-xl font-bold">{todaysDate}</h1>
@@ -304,7 +304,7 @@ export default function Home() {
                         <img
                             src="/barcode.png"
                             alt="Amor vincit omnia"
-                            className="opacity-100 object-fill"
+                            className="opacity-88 object-fill"
                         />
                     </div>
                 </div>
