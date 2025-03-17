@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 
-// @ts-ignore
+// @ts-expect-error
 export default function HoldDetector({ onHold, children, className, onClick }) {
 
   const holdTimeout = useRef(null);
