@@ -6,18 +6,7 @@ import { auth } from "@/firebase"; // Your firebase config
 import SignIn from "../components/SignIn";
 import SignOut from "../components/SignOut";
 import Image from "next/image";
-import {
-    query,
-    where,
-    addDoc,
-    collection,
-    getDocs,
-    doc,
-    onSnapshot,
-    getDoc,
-    updateDoc,
-    setDoc,
-} from "firebase/firestore";
+import { doc, onSnapshot, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import { db } from "@/firebase";
 import { toast } from "react-toastify";
 import { useTheme } from "../context/ThemeProvider";
@@ -62,7 +51,7 @@ export default function Profile() {
     }
 
     async function handleUserGoalEdit() {
-        let newUserGoal = document.getElementById("Goal").value;
+        const newUserGoal = document.getElementById("Goal").value;
         document.getElementById("Goal").value = "";
         toast.success(`Your goal has been updated!`, {
             position: "top-center",
@@ -89,7 +78,7 @@ export default function Profile() {
     }
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+        const unsubscribeUser = onAuthStateChanged(auth, async (authUser) => {
             setUser(authUser);
             if (authUser) {
                 try {
@@ -100,7 +89,7 @@ export default function Profile() {
                         console.log(
                             "User document already exists. Fetching user data",
                         );
-                        const unsubscribe = onSnapshot(
+                        const unsubscribeNotes = onSnapshot(
                             userDocRef,
                             (docSnapshot) => {
                                 if (docSnapshot.exists()) {
@@ -118,6 +107,13 @@ export default function Profile() {
                                 );
                             },
                         );
+                        const cleanup = () => {
+                            unsubscribeUser();
+                            unsubscribeNotes();
+                        };
+                        setLoading(false);
+                        return cleanup;
+
                     } else {
                         await setDoc(
                             userDocRef,
@@ -144,7 +140,7 @@ export default function Profile() {
             setLoading(false);
         });
 
-        return () => unsubscribe(); // Cleanup the listener
+        return () => unsubscribeUser(); // Cleanup the listener
     }, []);
 
     if (loading) {

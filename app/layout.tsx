@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import NavBar from "./components/NavBar";
 import { ToastContainer } from "react-toastify";
-import { ThemeProvider, useTheme } from "./context/ThemeProvider";
+import { ThemeProvider } from "./context/ThemeProvider";
 import Themer from "./components/Themer";
 
 export const metadata: Metadata = {

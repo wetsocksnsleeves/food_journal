@@ -1,27 +1,21 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 
 export default function HoldDetector({ onHold, children, className, onClick }) {
 
-  const [isHolding, setIsHolding] = useState(false);
   const holdTimeout = useRef(null);
 
   const handleStart = () => {
-    setIsHolding(true);
     holdTimeout.current = setTimeout(() => {
       onHold();
-
-      setIsHolding(false);
     }, 600);
   };
 
   const handleEnd = () => {
 
-    setIsHolding(false);
     clearTimeout(holdTimeout.current);
   };
 
   const handleLeave = () => {
-    setIsHolding(false);
     clearTimeout(holdTimeout.current);
   };
 

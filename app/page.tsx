@@ -5,13 +5,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { auth, db } from "@/firebase";
 import HoldDetector from "./components/HoldDetector";
-import debounce from "lodash/debounce";
 import {
-    query,
-    where,
-    addDoc,
-    collection,
-    getDocs,
     doc,
     onSnapshot,
     getDoc,
@@ -115,7 +109,7 @@ export default function Home() {
     }
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+        const unsubscribeUser = onAuthStateChanged(auth, async (authUser) => {
             setUser(authUser);
 
             if (!authUser) {
@@ -146,7 +140,7 @@ export default function Home() {
                         console.log(
                             "Attaching listener to today's data. Fetching...",
                         );
-                        const unsubscribe = onSnapshot(
+                        const unsubscribeNotes = onSnapshot(
                             dailyNotesDoc,
                             (docSnapshot) => {
                                 if (docSnapshot.exists()) {
@@ -163,6 +157,13 @@ export default function Home() {
                                 );
                             },
                         );
+                        const cleanup = () => {
+                            unsubscribeUser();
+                            unsubscribeNotes();
+                        }
+                        setLoading(false);
+                        return cleanup;
+
                     } else {
                         console.log(
                             "No daily note found for today. Creating one...",
@@ -187,7 +188,7 @@ export default function Home() {
         });
 
         // Close the snapshot listener
-        return () => unsubscribe();
+        return () => unsubscribeUser();
     }, [router]); // Added router to dependency array
 
     if (loading) {
