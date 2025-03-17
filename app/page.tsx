@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { auth, db } from "@/firebase";
+import HoldDetector from "./components/HoldDetector";
+import debounce from "lodash/debounce";
 import {
     query,
     where,
@@ -16,7 +18,9 @@ import {
     updateDoc,
     setDoc,
     arrayUnion,
+    arrayRemove,
 } from "firebase/firestore";
+import { toast } from "react-toastify";
 
 interface Item {
     name: string;
@@ -33,6 +37,8 @@ export default function Home() {
     const month = String(today.getMonth() + 1).padStart(2, "0");
     const day = String(today.getDate()).padStart(2, "0");
     const [todaysDate, setTodaysDate] = useState(`${year}-${month}-${day}`);
+    const [isEditing, setIsEditing] = useState(false);
+    const [allowEdit, setAllowEdit] = useState(false);
 
     // Firestore
     const [data, setData] = useState([]);
@@ -62,6 +68,49 @@ export default function Home() {
             await updateDoc(dateDocRef, {
                 data: arrayUnion(newEntry),
             });
+        }
+    }
+
+    const handleStopEditing = () => {
+        setIsEditing(false);
+        setAllowEdit(false);
+    };
+
+    const handleHold = () => {
+        setIsEditing(true);
+        setTimeout(() => {
+            setAllowEdit(true);
+        }, 500);
+    };
+
+    async function handleEdit(item: Item) {
+        if (allowEdit) {
+            toast.warning(`Deleted "${item.name}"`, {
+                position: "top-center",
+                autoClose: 800,
+                hideProgressBar: true,
+                closeOnClick: false,
+                pauseOnHover: false,
+            });
+
+            // Remove the item from Firestore
+            try {
+                const dateDocRef = doc(
+                    db,
+                    "users",
+                    user.uid,
+                    "dates",
+                    todaysDate,
+                );
+
+                await updateDoc(dateDocRef, {
+                    data: arrayRemove(item),
+                });
+
+                console.log("Item removed from array.");
+            } catch (error) {
+                console.error("Error removing item: ", error);
+            }
         }
     }
 
@@ -154,7 +203,10 @@ export default function Home() {
     }
 
     return (
-        <div className="py-6 mx-4 flex flex-col items-center gap-2">
+        <div
+            className="py-6 mx-4 flex flex-col items-center gap-2 drop-shadow-lg"
+            onClick={handleStopEditing}
+        >
             <div className="flex flex-col justify-center items-center text-center mb-8">
                 <span className="text-3xl mb-2">Welcome Back, {username}</span>
                 <span className="text-lg italic">
@@ -168,22 +220,41 @@ export default function Home() {
                         <h1 className="text-xl font-bold">{todaysDate}</h1>
                         <span className="text-right w-1/4 text-2xl active:scale-150 transition-all">{`>`}</span>
                     </div>
-                    <hr className="m-2 w-[98%] border-1 border-text border-dashed"/>
+                    <hr className="m-2 w-[98%] border-1 border-text border-dashed" />
                     <div className="mb-2 px-2 w-full flex justify-between font-bold">
                         <h1>ITEMS</h1>
                         <h1>CALORIES</h1>
                     </div>
-                    {data.map((item: Item, index) => {
-                        return (
-                            <div
-                                key={index}
-                                className="px-2 w-full flex justify-between"
-                            >
-                                <p>{item.name}</p>
-                                <p>{item.calories}</p>
-                            </div>
-                        );
-                    })}
+                    <HoldDetector
+                        onHold={handleHold}
+                        onClick={(event) => event.stopPropagation()}
+                        className="w-full"
+                    >
+                        {data.map((item: Item, index) => {
+                            return (
+                                <div
+                                    key={index}
+                                    className={`w-full flex justify-between ${isEditing ? "px-1" : "px-2"}`}
+                                    onClick={() => handleEdit(item)}
+                                >
+                                    <div className="flex justify-center gap-1">
+                                        {isEditing ? (
+                                            <img
+                                                src="/remove.svg"
+                                                alt="Delete"
+                                                className="scale-75"
+                                            />
+                                        ) : (
+                                            ""
+                                        )}
+                                        <p>{item.name}</p>
+                                    </div>
+                                    <p>{item.calories}</p>
+                                </div>
+                            );
+                        })}
+                    </HoldDetector>
+
                     {addNew ? (
                         <div>
                             <div className="mt-2 px-2 py-1 w-full rounded-lg flex justify-center gap-2">
@@ -215,7 +286,7 @@ export default function Home() {
                             Add new
                         </div>
                     )}
-                    <hr className="m-2 w-[98%] border-1 border-text border-dashed"/>
+                    <hr className="m-2 w-[98%] border-1 border-text border-dashed" />
                     <div className="px-2 w-full flex justify-between">
                         <h1 className="font-bold">GOAL</h1>
                         <h1 className="">{`≤ ${userGoal}`}</h1>
@@ -224,7 +295,7 @@ export default function Home() {
                         <h1 className="font-bold">TOTAL</h1>
                         <h1 className="">{userResult}</h1>
                     </div>
-                    <hr className="m-2 w-[98%] border-1 border-text border-dashed"/>
+                    <hr className="m-2 w-[98%] border-1 border-text border-dashed" />
                     <div className="px-2 w-full flex justify-between">
                         <h1 className="font-bold">REMAINING</h1>
                         <h1 className="">{userGoal - userResult}</h1>

@@ -16,9 +16,10 @@ import {
     onSnapshot,
     getDoc,
     updateDoc,
-    setDoc
+    setDoc,
 } from "firebase/firestore";
 import { db } from "@/firebase";
+import { toast } from "react-toastify";
 
 export default function Profile() {
     const [user, setUser] = useState(null);
@@ -28,6 +29,7 @@ export default function Profile() {
     const [username, setUsername] = useState("");
     const [editUsername, setEditUsername] = useState(false);
     const [userGoal, setUserGoal] = useState("");
+    const [theme, setTheme] = useState(0);
 
     async function handleUserNameEdit() {
         if (editUsername) {
@@ -36,6 +38,13 @@ export default function Profile() {
             const newUsername = document.getElementById("Username").value;
 
             if (newUsername) {
+                toast.success(`Your username has been updated!`, {
+                    position: "top-center",
+                    autoClose: 800,
+                    hideProgressBar: true,
+                    closeOnClick: false,
+                    pauseOnHover: false,
+                });
                 const userDocRef = doc(db, "users", user.uid);
                 await updateDoc(userDocRef, {
                     username: newUsername,
@@ -47,9 +56,15 @@ export default function Profile() {
     }
 
     async function handleUserGoalEdit() {
-        // Update the username
-        setEditUsername(false);
-        const newUserGoal = document.getElementById("Goal").value;
+        let newUserGoal = document.getElementById("Goal").value;
+        document.getElementById("Goal").value = "";
+        toast.success(`Your goal has been updated!`, {
+            position: "top-center",
+            autoClose: 800,
+            hideProgressBar: true,
+            closeOnClick: false,
+            pauseOnHover: false,
+        });
 
         if (newUserGoal) {
             const userDocRef = doc(db, "users", user.uid);
@@ -57,6 +72,14 @@ export default function Profile() {
                 goal: newUserGoal,
             });
         }
+    }
+
+    async function handleUserTheme(theme: number) {
+        // Write to firestore
+        const userDocRef = doc(db, "users", user.uid);
+        await updateDoc(userDocRef, {
+            theme: theme,
+        });
     }
 
     useEffect(() => {
@@ -77,6 +100,7 @@ export default function Profile() {
                                 if (docSnapshot.exists()) {
                                     setUsername(docSnapshot.data().username);
                                     setUserGoal(docSnapshot.data().goal);
+                                    setTheme(docSnapshot.data().theme);
                                 } else {
                                     console.log("User document not found.");
                                 }
@@ -97,6 +121,7 @@ export default function Profile() {
                                 username: authUser.displayName,
                                 uid: authUser.uid,
                                 goal: 0,
+                                theme: 0,
                             },
                             { merge: true },
                         ); // Use merge to prevent overwriting existing data
@@ -197,7 +222,30 @@ export default function Profile() {
                             </button>
                         </div>
                     </div>
-                    <div className="mt-5">
+                    <div className="p-3 pt-5 rounded-2xl bg-foreground m-5 flex gap-3 justify-evenly">
+                        <div className="flex flex-col justify-center items-center gap-2">
+                            <div
+                                className={`w-20 h-20 rounded-full bg-white ${theme === 0 ? "outline-2 outline-accent-two outline-offset-3" : ""}`}
+                                onClick={() => handleUserTheme(0)}
+                            ></div>
+                            <p>Default</p>
+                        </div>
+                        <div className="flex flex-col justify-center items-center gap-2">
+                            <div
+                                className={`w-20 h-20 rounded-full bg-gray-900 ${theme === 1 ? "outline-2 outline-accent-two outline-offset-3" : ""}`}
+                                onClick={() => handleUserTheme(1)}
+                            ></div>
+                            <p>Dark</p>
+                        </div>
+                        <div className="flex flex-col justify-center items-center gap-2">
+                            <div
+                                className={`w-20 h-20 rounded-full bg-pink-300 ${theme === 2 ? "outline-2 outline-offset-3 outline-accent-two" : ""}`}
+                                onClick={() => handleUserTheme(2)}
+                            ></div>
+                            <p>Pink</p>
+                        </div>
+                    </div>
+                    <div className="mt-3">
                         <SignOut />
                     </div>
                     <div className="text-center">
