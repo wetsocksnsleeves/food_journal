@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 
-// @ts-expect-error
+// @ts-expect-error: Just wanted to deploy this app fym
 export default function HoldDetector({ onHold, children, className, onClick }) {
 
   const holdTimeout = useRef(null);
