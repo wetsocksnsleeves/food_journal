@@ -1,52 +1,47 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from "react";
 
 // @ts-expect-error: Just wanted to deploy this app fym
 export default function HoldDetector({ onHold, children, className, onClick }) {
+    const holdTimeout = useRef(null);
 
-  const holdTimeout = useRef(null);
-
-  const handleStart = () => {
-    holdTimeout.current = setTimeout(() => {
-      onHold();
-    }, 600);
-  };
-
-  const handleEnd = () => {
-
-    clearTimeout(holdTimeout.current);
-  };
-
-  const handleLeave = () => {
-    clearTimeout(holdTimeout.current);
-  };
-
-
-  useEffect(() => {
-    return () => {
-
-      clearTimeout(holdTimeout.current);
+    const handleStart = () => {
+        // @ts-ignore
+        holdTimeout.current = setTimeout(() => {
+            onHold();
+        }, 600);
     };
-  }, []);
 
-  return (
+    const handleEnd = () => {
+        // @ts-ignore
+        clearTimeout(holdTimeout.current);
+    };
 
-    <div
-      onMouseDown={handleStart}
-      onMouseUp={handleEnd}
-      onMouseLeave={handleLeave}
-      onTouchStart={handleStart}
-      onTouchEnd={handleEnd}
-      onTouchCancel={handleEnd} // Important for touch events
+    const handleLeave = () => {
+        // @ts-ignore
+        clearTimeout(holdTimeout.current);
+    };
 
-      onTouchMove={handleLeave} // Important for touch events
+    useEffect(() => {
+        return () => {
+            // @ts-ignore
+            clearTimeout(holdTimeout.current);
+        };
+    }, []);
 
-      onClick={onClick}
-      className={className}
-      style={{ userSelect: 'none' }}
-    >
-      {children}
-    </div>
-
-  );
-
+    return (
+        <div
+            onMouseDown={handleStart}
+            onMouseUp={handleEnd}
+            onMouseLeave={handleLeave}
+            onTouchStart={handleStart}
+            onTouchEnd={handleEnd}
+            onTouchCancel={handleEnd} // Important for touch events
+            onTouchMove={handleLeave} // Important for touch events
+            onClick={onClick}
+            className={className}
+            style={{ userSelect: "none" }}
+        >
+            {children}
+        </div>
+    );
 }
