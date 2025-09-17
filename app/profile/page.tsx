@@ -30,7 +30,7 @@ export default function Profile() {
         if (editUsername) {
             // Update the username
             setEditUsername(false);
-        // @ts-ignore
+            // @ts-ignore
             const newUsername = document.getElementById("Username").value;
 
             if (newUsername) {
@@ -41,7 +41,7 @@ export default function Profile() {
                     closeOnClick: false,
                     pauseOnHover: false,
                 });
-        // @ts-ignore
+                // @ts-ignore
                 const userDocRef = doc(db, "users", user.uid);
                 await updateDoc(userDocRef, {
                     username: newUsername,
@@ -66,7 +66,7 @@ export default function Profile() {
         });
 
         if (newUserGoal) {
-        // @ts-ignore
+            // @ts-ignore
             const userDocRef = doc(db, "users", user.uid);
             await updateDoc(userDocRef, {
                 goal: newUserGoal,
@@ -85,7 +85,7 @@ export default function Profile() {
 
     useEffect(() => {
         const unsubscribeUser = onAuthStateChanged(auth, async (authUser) => {
-        // @ts-ignore
+            // @ts-ignore
             setUser(authUser);
             if (authUser) {
                 try {
@@ -120,7 +120,6 @@ export default function Profile() {
                         };
                         setLoading(false);
                         return cleanup;
-
                     } else {
                         await setDoc(
                             userDocRef,
@@ -254,7 +253,7 @@ export default function Profile() {
                         <SignOut />
                     </div>
                     <div className="text-center">
-                        Made with 🔥 by{" "}
+                        Made with 💗 by{" "}
                         <a href="https://www.linkedin.com/in/etao12">Etao</a>
                     </div>
                 </div>
@@ -265,7 +264,7 @@ export default function Profile() {
             <div>
                 <SignIn />
                 <div className="text-center">
-                    Made with 🔥 by{" "}
+                    Made with 💗 by{" "}
                     <a href="https://www.linkedin.com/in/etao12">Etao</a>
                 </div>
             </div>

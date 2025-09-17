@@ -1,0 +1,21 @@
+{
+    "name": "Food Journal",
+    "short_name": "Food Journal",
+    "description": "A cute receipt that shows all the foods you've tracked today.",
+    "display": "standalone",
+    "start_url": "/",
+    "icons": [
+        {
+            "src": "/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        }
+    ]
+}

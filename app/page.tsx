@@ -15,6 +15,7 @@ import {
     arrayRemove,
 } from "firebase/firestore";
 import { toast } from "react-toastify";
+import { useTheme } from "./context/ThemeProvider";
 
 interface Item {
     name: string;
@@ -38,6 +39,7 @@ export default function Home() {
     const [data, setData] = useState([]);
     const [username, setUsername] = useState("");
     const [userGoal, setUserGoal] = useState(0);
+    const { theme, setTheme } = useTheme();
     const userResult = sumCalories(data);
 
     function sumCalories(data: Item[]) {
@@ -59,7 +61,7 @@ export default function Home() {
         // Send the info to the datebase
         if (foodValue !== "" && calorieValue != "") {
             const newEntry: Item = { name: foodValue, calories: calorieValue };
-        // @ts-ignore
+            // @ts-ignore
             const dateDocRef = doc(db, "users", user.uid, "dates", todaysDate);
 
             await updateDoc(dateDocRef, {
@@ -95,7 +97,7 @@ export default function Home() {
                 const dateDocRef = doc(
                     db,
                     "users",
-        // @ts-ignore
+                    // @ts-ignore
                     user.uid,
                     "dates",
                     todaysDate,
@@ -114,7 +116,7 @@ export default function Home() {
 
     useEffect(() => {
         const unsubscribeUser = onAuthStateChanged(auth, async (authUser) => {
-        // @ts-ignore
+            // @ts-ignore
             setUser(authUser);
 
             if (!authUser) {
@@ -129,6 +131,7 @@ export default function Home() {
                     if (docSnapshot.exists()) {
                         setUsername(docSnapshot.data().username);
                         setUserGoal(docSnapshot.data().goal);
+                        setTheme(docSnapshot.data().theme);
                     }
 
                     const dailyNotesDoc = doc(
@@ -165,10 +168,9 @@ export default function Home() {
                         const cleanup = () => {
                             unsubscribeUser();
                             unsubscribeNotes();
-                        }
+                        };
                         setLoading(false);
                         return cleanup;
-
                     } else {
                         console.log(
                             "No daily note found for today. Creating one...",
@@ -233,7 +235,7 @@ export default function Home() {
                     </div>
                     <HoldDetector
                         onHold={handleHold}
-        // @ts-ignore
+                        // @ts-ignore
                         onClick={(event) => event.stopPropagation()}
                         className="w-full"
                     >
