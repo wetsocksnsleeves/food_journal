@@ -17,6 +17,7 @@ import {
 import { toast } from "react-toastify";
 import { useTheme } from "./context/ThemeProvider";
 import { Span } from "next/dist/trace";
+import imageCompression from "browser-image-compression";
 
 interface Item {
     name: string;
@@ -104,9 +105,18 @@ export default function Home() {
 
         const file: File = files[0];
 
+        const options = {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1024,
+            useWebWorker: true,
+        };
+
+        /* Compress the image before encoding */
+        const compressedFile = await imageCompression(file, options);
+
         try {
             setWaiting(true);
-            const fileEncoded = await fileToBase64(file);
+            const fileEncoded = await fileToBase64(compressedFile);
             const res = await fetch("/api/queryai", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
