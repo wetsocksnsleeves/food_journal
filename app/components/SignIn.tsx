@@ -10,7 +10,7 @@ export default function GoogleSignInButton() {
 
     const handleGoogleSignIn = async () => {
         try {
-            let res = await signInWithPopup(auth, provider);
+            const res = await signInWithPopup(auth, provider);
 
             if (res) {
                 router.push("/");
