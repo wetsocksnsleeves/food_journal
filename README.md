@@ -1,4 +1,4 @@
-![Deployment Status](https://img.shields.io/badge/Deployment-Not_up_to_date-red)
+![Deployment Status](https://img.shields.io/badge/Deployment-Up_to_date-green)
 
 # Food Journal
 The idea for this application originated from the frustration I have with
