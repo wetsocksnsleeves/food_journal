@@ -60,5 +60,6 @@ export async function POST(request: Request) {
 
     // Extract the assistant message with reasoning_details and save it to the response variable
     const result = await response.json();
+    // console.log(result);
     return Response.json(result.choices[0].message.content);
 }

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "browser-image-compression": "^2.0.2",
     "firebase": "^11.4.0",
     "firebase-tools": "^13.34.0",
     "lodash": "^4.17.21",
