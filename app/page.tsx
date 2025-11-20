@@ -82,7 +82,7 @@ export default function Home() {
         }
     }
 
-    function fileToBase64(file) {
+    function fileToBase64(file: File) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
 
@@ -93,13 +93,16 @@ export default function Home() {
         });
     }
 
-    async function handleAI(e) {
+    async function handleAI(e: React.ChangeEvent<HTMLInputElement>) {
         if (waiting) {
             console.log("Already waiting");
             return;
         }
 
-        const file = e.target.files[0];
+        const files = e.target.files;
+        if (!files || files.length === 0) return; // narrowed
+
+        const file: File = files[0];
 
         try {
             setWaiting(true);
@@ -124,11 +127,11 @@ export default function Home() {
     }
 
     const handleAIConfirm = () => {
-        document.getElementById("Food").value = response.name;
-        document.getElementById("Calories").value = response.estimated_calories;
+        (document.getElementById("Food") as HTMLInputElement)!.value = response!.name;
+        (document.getElementById("Calories") as HTMLInputElement)!.value = String(response!.estimated_calories);
         setResponse(null);
         handleAddNew();
-    }
+    };
 
     const handleStopEditing = () => {
         setIsEditing(false);
@@ -288,24 +291,51 @@ export default function Home() {
                 {response ? (
                     <div className="max-w-full flex flex-col justify-center">
                         <ul className="space-y-2">
-                            <li className="max-w-full whitespace-nowrap overflow-hidden truncate"><text className="font-bold">Name: </text>{response.name}</li>
+                            <li className="max-w-full whitespace-nowrap overflow-hidden truncate">
+                                <text className="font-bold">Name: </text>
+                                {response.name}
+                            </li>
                             <li>
-                                <text className="font-bold"> Estimated Weight (g): </text>
+                                <text className="font-bold">
+                                    {" "}
+                                    Estimated Weight (g):{" "}
+                                </text>
                                 {response.estimated_weight_grams}
                             </li>
                             <li>
-                                <text className="font-bold"> Estimated Calories: </text>
+                                <text className="font-bold">
+                                    {" "}
+                                    Estimated Calories:{" "}
+                                </text>
                                 {response.estimated_calories}
                             </li>
-                            <li><text className="font-bold">Confidence: </text>{response.confidence}</li>
+                            <li>
+                                <text className="font-bold">Confidence: </text>
+                                {response.confidence}
+                            </li>
                         </ul>
                         <div className="flex justify-between gap-2 mt-8">
-                        <button onClick={() => {setResponse(null); setAddNew(false);}} className="flex-grow border border-red-400 rounded-lg px-4 py-1 cursor-pointer bg-background active:brightness-200">Cancel</button>
-                        <button onClick={handleAIConfirm} className="flex-grow border border-green-400 rounded-lg px-4 py-1 cursor-pointer bg-background active:brightness-200">Confirm</button>
+                            <button
+                                onClick={() => {
+                                    setResponse(null);
+                                    setAddNew(false);
+                                }}
+                                className="flex-grow border border-red-400 rounded-lg px-4 py-1 cursor-pointer bg-background active:brightness-200"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleAIConfirm}
+                                className="flex-grow border border-green-400 rounded-lg px-4 py-1 cursor-pointer bg-background active:brightness-200"
+                            >
+                                Confirm
+                            </button>
                         </div>
                     </div>
                 ) : (
-                    <span className="w-full text-center animate-pulse py-6">Analyzing...</span>
+                    <span className="w-full text-center animate-pulse py-6">
+                        Analyzing...
+                    </span>
                 )}
             </div>
             <div className="pt-[23px] pb-[23px] w-full relative">
@@ -343,7 +373,12 @@ export default function Home() {
                                         ) : (
                                             ""
                                         )}
-                                        <p title={item.name} className="truncate">{item.name}</p>
+                                        <p
+                                            title={item.name}
+                                            className="truncate"
+                                        >
+                                            {item.name}
+                                        </p>
                                     </div>
                                     <p>{item.calories}</p>
                                 </div>
@@ -383,8 +418,8 @@ export default function Home() {
                             <div
                                 className="mt-2 px-2 py-1 w-full rounded-lg flex justify-center font-bold italic under"
                                 onClick={() =>
-                                    document
-                                        .getElementById("ImagePicker")
+                                    (document
+                                        .getElementById("ImagePicker") as HTMLInputElement)!
                                         .click()
                                 }
                             >
