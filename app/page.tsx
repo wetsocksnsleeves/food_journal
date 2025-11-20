@@ -127,6 +127,7 @@ export default function Home() {
         document.getElementById("Food").value = response.name;
         document.getElementById("Calories").value = response.estimated_calories;
         setResponse(null);
+        handleAddNew();
     }
 
     const handleStopEditing = () => {
@@ -282,26 +283,29 @@ export default function Home() {
             </div>
             <div
                 className={`${waiting || response ? "absolute" : "hidden"} w-[90%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-            bg-background text-white border border-accent-one p-4 rounded-xl shadow-xl z-10 flex flex-col justify-center items-center`}
+            bg-background text-white border border-accent-one p-4 rounded-xl shadow-xl shadow-black/50 z-10 flex flex-col justify-center items-center`}
             >
                 {response ? (
-                    <div className="flex flex-col justify-center">
+                    <div className="max-w-full flex flex-col justify-center">
                         <ul className="space-y-2">
-                            <li>Name: {response.name}</li>
+                            <li className="max-w-full whitespace-nowrap overflow-hidden truncate"><text className="font-bold">Name: </text>{response.name}</li>
                             <li>
-                                Estimated Weight (g):{" "}
+                                <text className="font-bold"> Estimated Weight (g): </text>
                                 {response.estimated_weight_grams}
                             </li>
                             <li>
-                                Estimated Calories:{" "}
+                                <text className="font-bold"> Estimated Calories: </text>
                                 {response.estimated_calories}
                             </li>
-                            <li>Confidence: {response.confidence}</li>
+                            <li><text className="font-bold">Confidence: </text>{response.confidence}</li>
                         </ul>
-                        <button onClick={handleAIConfirm} className="mt-8 border border-accent-one rounded-lg px-4 py-1 cursor-pointer bg-background active:brightness-200">Confirm</button>
+                        <div className="flex justify-between gap-2 mt-8">
+                        <button onClick={() => {setResponse(null); setAddNew(false);}} className="flex-grow border border-red-400 rounded-lg px-4 py-1 cursor-pointer bg-background active:brightness-200">Cancel</button>
+                        <button onClick={handleAIConfirm} className="flex-grow border border-green-400 rounded-lg px-4 py-1 cursor-pointer bg-background active:brightness-200">Confirm</button>
+                        </div>
                     </div>
                 ) : (
-                    <span className="w-full text-center animate-pulse">Thinking...</span>
+                    <span className="w-full text-center animate-pulse py-6">Analyzing...</span>
                 )}
             </div>
             <div className="pt-[23px] pb-[23px] w-full relative">
