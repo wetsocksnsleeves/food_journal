@@ -16,10 +16,20 @@ import {
 } from "firebase/firestore";
 import { toast } from "react-toastify";
 import { useTheme } from "./context/ThemeProvider";
+import { Span } from "next/dist/trace";
 
 interface Item {
     name: string;
     calories: number;
+}
+
+interface Response {
+    name: string;
+    ingredients: string[];
+    cooking_method: string;
+    estimated_weight_grams: number;
+    estimated_calories: number;
+    confidence: string;
 }
 
 export default function Home() {
@@ -34,6 +44,8 @@ export default function Home() {
     const [todaysDate, setTodaysDate] = useState(`${year}-${month}-${day}`);
     const [isEditing, setIsEditing] = useState(false);
     const [allowEdit, setAllowEdit] = useState(false);
+    const [waiting, setWaiting] = useState<boolean>(false);
+    const [response, setResponse] = useState<Response | null>(null);
 
     // Firestore
     const [data, setData] = useState([]);
@@ -69,6 +81,57 @@ export default function Home() {
             });
         }
     }
+
+    function fileToBase64(file: File) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+
+            reader.readAsDataURL(file); // returns base64 as data URL string
+        });
+    }
+
+    async function handleAI(e: React.ChangeEvent<HTMLInputElement>) {
+        if (waiting) {
+            console.log("Already waiting");
+            return;
+        }
+
+        const files = e.target.files;
+        if (!files || files.length === 0) return; // narrowed
+
+        const file: File = files[0];
+
+        try {
+            setWaiting(true);
+            const fileEncoded = await fileToBase64(file);
+            const res = await fetch("/api/queryai", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ data: fileEncoded }),
+            });
+            const data = await res.json();
+
+            if (data) {
+                console.log("AI responded");
+                console.log(data);
+                setResponse(JSON.parse(data));
+            }
+        } catch (e) {
+            console.log("Something happened...");
+        } finally {
+            setWaiting(false);
+        }
+    }
+
+    const handleAIConfirm = () => {
+        (document.getElementById("Food") as HTMLInputElement)!.value = response!.name;
+        (document.getElementById("Calories") as HTMLInputElement)!.value = String(response!.estimated_calories);
+        setResponse(null);
+        handleAddNew();
+    };
 
     const handleStopEditing = () => {
         setIsEditing(false);
@@ -221,6 +284,60 @@ export default function Home() {
                     Lets track your diet today.
                 </span>
             </div>
+            <div
+                className={`${waiting || response ? "absolute" : "hidden"} w-[90%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+            bg-background text-white border border-accent-one p-4 rounded-xl shadow-xl shadow-black/50 z-10 flex flex-col justify-center items-center`}
+            >
+                {response ? (
+                    <div className="max-w-full flex flex-col justify-center">
+                        <ul className="space-y-2">
+                            <li className="max-w-full whitespace-nowrap overflow-hidden truncate">
+                                <text className="font-bold">Name: </text>
+                                {response.name}
+                            </li>
+                            <li>
+                                <text className="font-bold">
+                                    {" "}
+                                    Estimated Weight (g):{" "}
+                                </text>
+                                {response.estimated_weight_grams}
+                            </li>
+                            <li>
+                                <text className="font-bold">
+                                    {" "}
+                                    Estimated Calories:{" "}
+                                </text>
+                                {response.estimated_calories}
+                            </li>
+                            <li>
+                                <text className="font-bold">Confidence: </text>
+                                {response.confidence}
+                            </li>
+                        </ul>
+                        <div className="flex justify-between gap-2 mt-8">
+                            <button
+                                onClick={() => {
+                                    setResponse(null);
+                                    setAddNew(false);
+                                }}
+                                className="flex-grow border border-red-400 rounded-lg px-4 py-1 cursor-pointer bg-background active:brightness-200"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleAIConfirm}
+                                className="flex-grow border border-green-400 rounded-lg px-4 py-1 cursor-pointer bg-background active:brightness-200"
+                            >
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <span className="w-full text-center animate-pulse py-6">
+                        Analyzing...
+                    </span>
+                )}
+            </div>
             <div className="pt-[23px] pb-[23px] w-full relative">
                 <div className="text-[#364153] flex flex-col justify-start items-center px-3 py-8 bg-white w-full min-h-50 break-all">
                     <div className="px-3 w-full flex justify-between">
@@ -246,7 +363,7 @@ export default function Home() {
                                     className={`w-full flex justify-between ${isEditing ? "px-1" : "px-2"}`}
                                     onClick={() => handleEdit(item)}
                                 >
-                                    <div className="flex justify-center gap-1">
+                                    <div className="flex justify-start gap-1 whitespace-nowrap max-w-1/2">
                                         {isEditing ? (
                                             <img
                                                 src="/remove.svg"
@@ -256,7 +373,12 @@ export default function Home() {
                                         ) : (
                                             ""
                                         )}
-                                        <p>{item.name}</p>
+                                        <p
+                                            title={item.name}
+                                            className="truncate"
+                                        >
+                                            {item.name}
+                                        </p>
                                     </div>
                                     <p>{item.calories}</p>
                                 </div>
@@ -279,12 +401,29 @@ export default function Home() {
                                     placeholder="e.g. 270"
                                     className="rounded-sm outline p-1 bg-white w-full text-right"
                                 />
+                                <input
+                                    id="ImagePicker"
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleAI}
+                                />
                             </div>
                             <div
-                                className="mt-2 px-2 py-1 w-full rounded-lg flex justify-center font-bold"
+                                className="mt-2 px-2 py-1 w-full rounded-lg flex justify-center font-bold font-lora"
                                 onClick={handleAddNew}
                             >
                                 Confirm
+                            </div>
+                            <div
+                                className="mt-2 px-2 py-1 w-full rounded-lg flex justify-center font-bold italic under"
+                                onClick={() =>
+                                    (document
+                                        .getElementById("ImagePicker") as HTMLInputElement)!
+                                        .click()
+                                }
+                            >
+                                AI Detect
                             </div>
                         </div>
                     ) : (

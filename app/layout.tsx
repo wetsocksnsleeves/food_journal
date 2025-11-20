@@ -22,7 +22,6 @@ export default function RootLayout({
 }>) {
     return (
         <ThemeProvider>
-            <Themer>
                 <head>
                     <link rel="apple-touch-icon" href="/icon-192x192.png" />
                     <link
@@ -39,6 +38,7 @@ export default function RootLayout({
                     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
                     </meta>
                 </head>
+            <Themer>
                 <div className="flex justify-center items-center ">
                     <NavBar />
                 </div>

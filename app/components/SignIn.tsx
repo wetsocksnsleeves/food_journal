@@ -3,12 +3,18 @@
 import { useState } from "react";
 import { auth, provider } from "@/firebase"; // Import from your firebase.js
 import { signInWithPopup } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 export default function GoogleSignInButton() {
+    const router = useRouter();
 
     const handleGoogleSignIn = async () => {
         try {
-            await signInWithPopup(auth, provider);
+            let res = await signInWithPopup(auth, provider);
+
+            if (res) {
+                router.push("/");
+            }
         } catch (err) {
             console.error("Google Sign-in Error:", err);
         }
