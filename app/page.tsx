@@ -16,10 +16,20 @@ import {
 } from "firebase/firestore";
 import { toast } from "react-toastify";
 import { useTheme } from "./context/ThemeProvider";
+import { Span } from "next/dist/trace";
 
 interface Item {
     name: string;
     calories: number;
+}
+
+interface Response {
+    name: string;
+    ingredients: string[];
+    cooking_method: string;
+    estimated_weight_grams: number;
+    estimated_calories: number;
+    confidence: string;
 }
 
 export default function Home() {
@@ -34,6 +44,8 @@ export default function Home() {
     const [todaysDate, setTodaysDate] = useState(`${year}-${month}-${day}`);
     const [isEditing, setIsEditing] = useState(false);
     const [allowEdit, setAllowEdit] = useState(false);
+    const [waiting, setWaiting] = useState<boolean>(false);
+    const [response, setResponse] = useState<Response | null>(null);
 
     // Firestore
     const [data, setData] = useState([]);
@@ -68,6 +80,51 @@ export default function Home() {
                 data: arrayUnion(newEntry),
             });
         }
+    }
+
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+
+            reader.readAsDataURL(file); // returns base64 as data URL string
+        });
+    }
+
+    async function handleAI(e) {
+        if (waiting) {
+            console.log("Already waiting");
+            return;
+        }
+
+        const file = e.target.files[0];
+
+        try {
+            setWaiting(true);
+            const fileEncoded = await fileToBase64(file);
+            const res = await fetch("/api/queryai", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ data: fileEncoded }),
+            });
+            const data = await res.json();
+
+            if (data) {
+                console.log("AI responded");
+                console.log(data);
+                setResponse(JSON.parse(data));
+            }
+        } catch (e) {
+            console.log("Something happened...");
+        } finally {
+            setWaiting(false);
+        }
+    }
+
+    const handleAIConfirm = () => {
+        setResponse(null);
     }
 
     const handleStopEditing = () => {
@@ -221,6 +278,30 @@ export default function Home() {
                     Lets track your diet today.
                 </span>
             </div>
+            <div
+                className={`${waiting || response ? "absolute" : "hidden"} w-[90%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+            bg-background text-white border border-accent-one p-4 rounded-xl shadow-xl z-10 flex flex-col justify-center items-center`}
+            >
+                {response ? (
+                    <div className="flex flex-col justify-center">
+                        <ul className="space-y-2">
+                            <li>Name: {response.name}</li>
+                            <li>
+                                Estimated Weight (g):{" "}
+                                {response.estimated_weight_grams}
+                            </li>
+                            <li>
+                                Estimated Calories:{" "}
+                                {response.estimated_calories}
+                            </li>
+                            <li>Confidence: {response.confidence}</li>
+                        </ul>
+                        <button onClick={handleAIConfirm} className="mt-8 border border-accent-one rounded-lg px-4 py-1 cursor-pointer bg-background active:brightness-200">Confirm</button>
+                    </div>
+                ) : (
+                    <span className="w-full text-center animate-pulse">Thinking...</span>
+                )}
+            </div>
             <div className="pt-[23px] pb-[23px] w-full relative">
                 <div className="text-[#364153] flex flex-col justify-start items-center px-3 py-8 bg-white w-full min-h-50 break-all">
                     <div className="px-3 w-full flex justify-between">
@@ -279,12 +360,29 @@ export default function Home() {
                                     placeholder="e.g. 270"
                                     className="rounded-sm outline p-1 bg-white w-full text-right"
                                 />
+                                <input
+                                    id="ImagePicker"
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleAI}
+                                />
                             </div>
                             <div
-                                className="mt-2 px-2 py-1 w-full rounded-lg flex justify-center font-bold"
+                                className="mt-2 px-2 py-1 w-full rounded-lg flex justify-center font-bold font-lora"
                                 onClick={handleAddNew}
                             >
                                 Confirm
+                            </div>
+                            <div
+                                className="mt-2 px-2 py-1 w-full rounded-lg flex justify-center font-bold italic under"
+                                onClick={() =>
+                                    document
+                                        .getElementById("ImagePicker")
+                                        .click()
+                                }
+                            >
+                                AI Detect
                             </div>
                         </div>
                     ) : (
