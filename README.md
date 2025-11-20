@@ -1,6 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Food Journal
+The idea for this application originated from the frustration I have with
+existing applications. Asking countless questions that aren't even relevant to
+the goal of tracking calories.
 
-## Getting Started
+This app just requires you to input your TDEE value, calculated via an 
+online estimator linked from within the application.
+
+The aesthetic of the app is based on that of a receipt, there was something
+that I saw in the minimal clean and familiarity of our everyday receipt. Hence
+the design choice.
+
+## Features:
+- No BS calorie tracking
+- AI powered calorie estimator powered by Grok 4.1 Fast
+- Aesthetic looking interface
+- PWA compatible
+
+# Recommended usage, mobile PWA
+- Open the app via the link on the side of the repo, or [here](https://food-journal-ruby.vercel.app/)
+- Add the website to homescreen via bookmarks > Install as PWA
+- The app should now function like a normal app. However, it maybe a bit slower
+
+# Development notes
+
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 First, run the development server:
 
