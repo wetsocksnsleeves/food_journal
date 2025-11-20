@@ -124,6 +124,8 @@ export default function Home() {
     }
 
     const handleAIConfirm = () => {
+        document.getElementById("Food").value = response.name;
+        document.getElementById("Calories").value = response.estimated_calories;
         setResponse(null);
     }
 
@@ -327,7 +329,7 @@ export default function Home() {
                                     className={`w-full flex justify-between ${isEditing ? "px-1" : "px-2"}`}
                                     onClick={() => handleEdit(item)}
                                 >
-                                    <div className="flex justify-center gap-1">
+                                    <div className="flex justify-start gap-1 whitespace-nowrap max-w-1/2">
                                         {isEditing ? (
                                             <img
                                                 src="/remove.svg"
@@ -337,7 +339,7 @@ export default function Home() {
                                         ) : (
                                             ""
                                         )}
-                                        <p>{item.name}</p>
+                                        <p title={item.name} className="truncate">{item.name}</p>
                                     </div>
                                     <p>{item.calories}</p>
                                 </div>
