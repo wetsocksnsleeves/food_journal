@@ -53,7 +53,7 @@ export async function POST(request: Request) {
                         ],
                     },
                 ],
-                reasoning: { enabled: true },
+                reasoning: { enabled: false },
             }),
         },
     );
